@@ -117,7 +117,7 @@
             <form id="login-form" class="space-y-4" onsubmit="return false;">
                 <input type="password" id="access-code" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition text-center tracking-widest" placeholder="•••••••••" autofocus>
                 <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-500/20">
-                    Take Control
+                    Submit
                 </button>
                 <p id="login-error" class="text-red-400 text-xs hidden animate-pulse">Access Denied</p>
             </form>
@@ -371,13 +371,25 @@
             const loginError = document.getElementById('login-error');
             const startModal = document.getElementById('start-modal');
 
+            // --- Clickability Fix Helper ---
+            // Replaces inline 'display' styles with pure Tailwind class toggles
+            // This prevents "hidden" classes from being overridden by "style='display:flex'"
+            const showModal = (modal) => {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            };
+            const hideModal = (modal) => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+                modal.style.display = ''; // Clear inline styles just in case
+            };
+
             const grantAccess = () => {
                 authScreen.style.opacity = '0';
                 setTimeout(() => {
                     authScreen.style.display = 'none';
                     appRoot.classList.remove('hidden');
-                    startModal.classList.remove('hidden');
-                    startModal.style.display = 'flex';
+                    showModal(startModal);
                 }, 500);
             };
 
@@ -773,17 +785,17 @@
             }
 
             document.getElementById('template-blank').addEventListener('click', () => { 
-                loadTemplateIntoCanvas('blank'); startModal.classList.add('hidden'); 
+                loadTemplateIntoCanvas('blank'); hideModal(startModal); 
             });
             document.getElementById('template-portfolio').addEventListener('click', () => { 
-                loadTemplateIntoCanvas('portfolio'); startModal.classList.add('hidden'); 
+                loadTemplateIntoCanvas('portfolio'); hideModal(startModal); 
             });
             document.getElementById('template-business').addEventListener('click', () => { 
-                loadTemplateIntoCanvas('business'); startModal.classList.add('hidden'); 
+                loadTemplateIntoCanvas('business'); hideModal(startModal); 
             });
 
-            document.getElementById('close-modal-btn').addEventListener('click', () => { startModal.classList.add('hidden'); });
-            document.getElementById('btn-open-templates').addEventListener('click', () => { startModal.classList.remove('hidden'); });
+            document.getElementById('close-modal-btn').addEventListener('click', () => { hideModal(startModal); });
+            document.getElementById('btn-open-templates').addEventListener('click', () => { showModal(startModal); });
 
             document.getElementById('btn-clear').addEventListener('click', () => {
                 if(confirm("Are you sure? This will delete everything on THIS page.")) {
