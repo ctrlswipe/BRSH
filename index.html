@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brsh - Visual Website Builder by CTRL Swipe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@400;700&family=Roboto+Mono&display=swap');
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-dark {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Canvas Styles */
+        #canvas-area {
+            min-height: 100vh;
+            transition: width 0.3s ease;
+            background-color: white;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        }
+
+        /* Editing Highlights */
+        .editable-section:hover {
+            outline: 2px dashed #6366f1;
+            position: relative;
+        }
+
+        .editable-section:hover .section-controls {
+            opacity: 1;
+        }
+
+        .section-controls {
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        [contenteditable="true"]:focus {
+            outline: 2px solid #a5b4fc;
+            background: rgba(238, 242, 255, 0.5);
+            border-radius: 4px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c7c7c7;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Mobile Preview Mode */
+        .mobile-view {
+            width: 375px !important;
+            border-radius: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border: 8px solid #333;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans h-screen overflow-hidden flex flex-col">
+
+    <!-- SEO Config (Hidden State) -->
+    <input type="hidden" id="seo-title" value="My Awesome Website">
+    <input type="hidden" id="seo-desc" value="Created with Brsh">
+    <input type="hidden" id="seo-keywords" value="website, builder">
+
+    <!-- Top Navigation (Liquid Glass) -->
+    <nav class="glass fixed top-4 left-4 right-4 h-16 rounded-2xl z-50 flex items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+            <div class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 cursor-pointer" onclick="window.open('https://ctrlswipe.com/', '_blank')">
+                Brsh <span class="text-xs text-slate-500 font-normal tracking-wide text-black">by CTRL Swipe</span>
+            </div>
+            <div class="h-6 w-px bg-slate-300 mx-2"></div>
+            <!-- View Modes -->
+            <button onclick="setView('desktop')" class="p-2 rounded-lg hover:bg-white/40 transition text-slate-600" title="Desktop View"><i class="fas fa-desktop"></i></button>
+            <button onclick="setView('mobile')" class="p-2 rounded-lg hover:bg-white/40 transition text-slate-600" title="Mobile View"><i class="fas fa-mobile-alt"></i></button>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button onclick="openSeoModal()" class="px-4 py-2 rounded-lg bg-white/50 hover:bg-white/80 transition text-sm font-medium">
+                <i class="fas fa-search mr-2"></i>SEO
+            </button>
+            <button onclick="clearCanvas()" class="px-4 py-2 rounded-lg bg-red-100/50 hover:bg-red-100 transition text-red-600 text-sm font-medium">
+                <i class="fas fa-trash mr-2"></i>Clear
+            </button>
+            <button onclick="exportWebsite()" class="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/30 transition text-sm font-bold">
+                <i class="fas fa-download mr-2"></i>Export
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Workspace -->
+    <div class="flex flex-1 pt-24 h-full">
+        
+        <!-- Sidebar Tools -->
+        <aside class="w-64 glass-dark text-white m-4 mt-0 rounded-2xl flex flex-col p-4 gap-4 overflow-y-auto z-40">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-2">Components</h3>
+            
+            <div class="space-y-3">
+                <div class="draggable-item p-3 bg-slate-800/50 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-3" draggable="true" ondragstart="drag(event)" data-type="hero">
+                    <i class="fas fa-image text-indigo-400"></i>
+                    <div>
+                        <p class="text-sm font-medium">Hero Section</p>
+                        <p class="text-xs text-slate-400">Image + Title</p>
+                    </div>
+                </div>
+
+                <div class="draggable-item p-3 bg-slate-800/50 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-3" draggable="true" ondragstart="drag(event)" data-type="text-block">
+                    <i class="fas fa-align-left text-pink-400"></i>
+                    <div>
+                        <p class="text-sm font-medium">Text Block</p>
+                        <p class="text-xs text-slate-400">Paragraphs</p>
+                    </div>
+                </div>
+
+                <div class="draggable-item p-3 bg-slate-800/50 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-3" draggable="true" ondragstart="drag(event)" data-type="two-col">
+                    <i class="fas fa-columns text-emerald-400"></i>
+                    <div>
+                        <p class="text-sm font-medium">Split Layout</p>
+                        <p class="text-xs text-slate-400">Image Left, Text Right</p>
+                    </div>
+                </div>
+
+                <div class="draggable-item p-3 bg-slate-800/50 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-3" draggable="true" ondragstart="drag(event)" data-type="gallery">
+                    <i class="fas fa-images text-amber-400"></i>
+                    <div>
+                        <p class="text-sm font-medium">Gallery</p>
+                        <p class="text-xs text-slate-400">3 Grid Images</p>
+                    </div>
+                </div>
+                 <div class="draggable-item p-3 bg-slate-800/50 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-3" draggable="true" ondragstart="drag(event)" data-type="video">
+                    <i class="fas fa-video text-red-400"></i>
+                    <div>
+                        <p class="text-sm font-medium">Video Embed</p>
+                        <p class="text-xs text-slate-400">Upload or URL</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-auto pt-4 border-t border-slate-700">
+                <p class="text-xs text-center text-slate-500">Drag components onto the canvas</p>
+            </div>
+        </aside>
+
+        <!-- Canvas Wrapper (for scroll/center) -->
+        <div class="flex-1 overflow-y-auto flex justify-center bg-slate-200/50 relative" id="canvas-wrapper">
+            <!-- The Actual Website Canvas -->
+            <div id="canvas-area" class="w-full max-w-6xl mx-auto pb-20" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <!-- Content goes here dynamically -->
+                <div class="p-10 text-center text-slate-400 border-2 border-dashed border-slate-300 m-10 rounded-xl pointer-events-none" id="empty-state">
+                    Start by choosing a template or drag elements here
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Editor Toolbar (Appears on text select) -->
+        <div id="editor-toolbar" class="hidden absolute z-50 glass bg-white/90 p-2 rounded-lg shadow-xl flex gap-2 items-center">
+            <select onchange="execCmd('fontName', this.value)" class="bg-transparent text-sm border-r border-gray-300 pr-2 outline-none">
+                <option value="Inter">Inter</option>
+                <option value="Playfair Display">Playfair</option>
+                <option value="Roboto Mono">Mono</option>
+                <option value="Arial">Arial</option>
+            </select>
+            <button onclick="execCmd('bold')" class="w-8 h-8 rounded hover:bg-slate-200"><i class="fas fa-bold"></i></button>
+            <button onclick="execCmd('italic')" class="w-8 h-8 rounded hover:bg-slate-200"><i class="fas fa-italic"></i></button>
+            <button onclick="execCmd('justifyLeft')" class="w-8 h-8 rounded hover:bg-slate-200"><i class="fas fa-align-left"></i></button>
+            <button onclick="execCmd('justifyCenter')" class="w-8 h-8 rounded hover:bg-slate-200"><i class="fas fa-align-center"></i></button>
+            <input type="color" onchange="execCmd('foreColor', this.value)" class="w-8 h-8 p-0 border-0 rounded cursor-pointer">
+        </div>
+
+    </div>
+
+    <!-- Start Modal -->
+    <div id="start-modal" class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center">
+        <div class="bg-white rounded-2xl p-8 max-w-4xl w-full shadow-2xl">
+            <h1 class="text-3xl font-bold mb-2 text-center">Welcome to Brsh</h1>
+            <p class="text-center text-slate-500 mb-8">Visual Website Builder by <a href="https://ctrlswipe.com/" target="_blank" class="text-indigo-600 hover:underline">CTRL Swipe</a></p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Template 1: Blank -->
+                <div onclick="loadTemplate('blank')" class="group cursor-pointer border-2 border-slate-100 hover:border-indigo-500 rounded-xl p-4 transition text-center hover:shadow-xl">
+                    <div class="h-40 bg-slate-100 rounded-lg mb-4 flex items-center justify-center group-hover:bg-indigo-50 transition">
+                        <i class="fas fa-plus text-3xl text-slate-300 group-hover:text-indigo-400"></i>
+                    </div>
+                    <h3 class="font-bold text-lg">Blank Canvas</h3>
+                    <p class="text-sm text-slate-500">Start from scratch.</p>
+                </div>
+
+                <!-- Template 2: Portfolio -->
+                <div onclick="loadTemplate('portfolio')" class="group cursor-pointer border-2 border-slate-100 hover:border-indigo-500 rounded-xl p-4 transition text-center hover:shadow-xl">
+                    <div class="h-40 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                        <div class="w-3/4 h-3/4 bg-white shadow-sm rounded"></div>
+                    </div>
+                    <h3 class="font-bold text-lg">Creative Portfolio</h3>
+                    <p class="text-sm text-slate-500">Showcase your work.</p>
+                </div>
+
+                <!-- Template 3: Business -->
+                <div onclick="loadTemplate('business')" class="group cursor-pointer border-2 border-slate-100 hover:border-indigo-500 rounded-xl p-4 transition text-center hover:shadow-xl">
+                    <div class="h-40 bg-gradient-to-br from-slate-100 to-slate-300 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                        <div class="flex flex-col gap-2 w-3/4">
+                            <div class="h-2 bg-slate-400 rounded w-full"></div>
+                            <div class="h-2 bg-slate-400 rounded w-1/2"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-lg">Small Business</h3>
+                    <p class="text-sm text-slate-500">Classic layout.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEO Modal -->
+    <div id="seo-modal" class="hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center">
+        <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h2 class="text-xl font-bold mb-4">SEO Settings</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Page Title</label>
+                    <input type="text" id="input-seo-title" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                    <textarea id="input-seo-desc" rows="3" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Keywords</label>
+                    <input type="text" id="input-seo-keywords" placeholder="design, portfolio, etc" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button onclick="closeSeoModal()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
+                <button onclick="saveSeo()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden File Input for Image/Video Uploads -->
+    <input type="file" id="media-upload" class="hidden" accept="image/*,video/*">
+
+    <script>
+        /* --- GLOBAL STATE & UTILS --- */
+        let draggedType = null;
+        let currentEditingImg = null;
+
+        // Templates Data
+        const templates = {
+            blank: ``,
+            portfolio: `
+                <section class="editable-section relative group border-b border-transparent hover:border-indigo-100 transition-all">
+                    <div class="absolute right-2 top-2 section-controls z-20 flex gap-2">
+                        <button onclick="moveUp(this)" class="bg-white shadow p-1 rounded hover:text-indigo-600"><i class="fas fa-arrow-up"></i></button>
+                        <button onclick="moveDown(this)" class="bg-white shadow p-1 rounded hover:text-indigo-600"><i class="fas fa-arrow-down"></i></button>
+                        <button onclick="deleteSection(this)" class="bg-red-500 shadow p-1 rounded text-white hover:bg-red-600"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="bg-slate-900 text-white py-20 px-6 text-center">
+                        <h1 contenteditable="true" class="text-5xl font-bold mb-4 font-[Playfair Display]">I am a Creator.</h1>
+                        <p contenteditable="true" class="text-xl text-slate-300 max-w-2xl mx-auto">This is a space where design meets functionality. I build digital experiences that matter.</p>
+                    </div>
+                </section>
+                <section class="editable-section relative group border-b border-transparent hover:border-indigo-100 transition-all">
+                    <div class="absolute right-2 top-2 section-controls z-20 flex gap-2">
+                        <button onclick="moveUp(this)" class="bg-white shadow p-1 rounded hover:text-indigo-600"><i class="fas fa-arrow-up"></i></button>
+                        <button onclick="moveDown(this)" class="bg-white shadow p-1 rounded hover:text-indigo-600"><i class="fas fa-arrow-down"></i></button>
+                        <button onclick="deleteSection(this)" class="bg-red-500 shadow p-1 rounded text-white hover:bg-red-600"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="py-16 px-6 max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
+                        <img src="https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&q=80&w=800" class="rounded-lg shadow-xl cursor-pointer hover:opacity-90 transition w-full h-64 object-cover" onclick="triggerUpload(this)">
+                        <div>
+                            <h2 contenteditable="true" class="text-3xl font-bold mb-4">About Me</h2>
+                            <p contenteditable="true" class="text-slate-600 mb-4">I have been working in design for over 10 years. My passion is converting complex problems into simple, beautiful solutions. Click this image to replace it with your own work.</p>
+                        </div>
+                    </div>
+                </section>
+            `,
+            business: `
+                <section class="editable-section relative group border-b border-transparent hover:border-indigo-100 transition-all">
+                    <div class="absolute right-2 top-2 section-controls z-20 flex gap-2">
+                        <button onclick="moveUp(this)" class="bg-white shadow p-1 rounded hover:text-indigo-600"><i class="fas fa-arrow-up"></i></button>
+                        <button onclick="moveDown(this)" class="bg-white shadow p-1 rounded hover:text-indigo-600"><i class="fas fa-arrow-down"></i></button>
+                        <button onclick="deleteSection(this)" class="bg-red-500 shadow p-1 rounded text-white hover:bg-red-600"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="relative py-24 bg-indigo-600 text-white text-center">
+                        <h1 contenteditable="true" class="text-4xl font-bold mb-2">Grow Your Business</h1>
+                        <p contenteditable="true" class="text-lg opacity-90">We provide the solutions you need to succeed.</p>
+                        <button contenteditable="true" class="mt-6 bg-white text-indigo-600 px-6 py-2 rounded-full font-bold hover:bg-indigo-50 transition">Get Started</button>
+                    </div>
+                </section>
+                 <section class="editable-section relative group border-b border-transparent hover:border-indigo-100 transition-all">
+                    <div class="absolute right-2 top-2 section-controls z-20 flex gap-2">
+                        <button onclick="moveUp(this)" class="bg-white shadow p-1 rounded hover:text-indigo-600"><i class="fas fa-arrow-up"></i></button>
+                        <button onclick="moveDown(this)" class="bg-white shadow p-1 rounded hover:text-indigo-600"><i class="fas fa-arrow-down"></i></button>
+                        <button onclick="deleteSection(this)" class="bg-red-500 shadow p-1 rounded text-white hover:bg-red-600"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="py-16 px-6 max-w-4xl mx-auto text-center">
+                        <h2 contenteditable="true" class="text-3xl font-bold mb-8 text-slate-800">Our Services</h2>
+                        <div class="grid md:grid-cols-3 gap-8">
+                            <div class="p-6 bg-white shadow rounded-lg">
+                                <i class="fas fa-chart-line text-4xl text-indigo-500 mb-4"></i>
+                                <h3 contenteditable="true" class="font-bold mb-2">Strategy</h3>
+                                <p contenteditable="true" class="text-sm text-slate-500">Data driven decisions.</p>
+                            </div>
+                            <div class="p-6 bg-white shadow rounded-lg">
+                                <i class="fas fa-bullhorn text-4xl text-indigo-500 mb-4"></i>
+                                <h3 contenteditable="true" class="font-bold mb-2">Marketing</h3>
+                                <p contenteditable="true" class="text-sm text-slate-500">Reach your audience.</p>
+                            </div>
+                            <div class="p-6 bg-white shadow rounded-lg">
+                                <i class="fas fa-code text-4xl text-indigo-500 mb-4"></i>
+                                <h3 contenteditable="true" class="font-bold mb-2">Development</h3>
+                                <p contenteditable="true" class="text-sm text-slate-500">Robust tech solutions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `
+        };
+
+        /* --- DRAG AND DROP LOGIC --- */
+        
+        function drag(ev) {
+            draggedType = ev.target.dataset.type;
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            document.getElementById('empty-state').style.display = 'none';
+            
+            let html = '';
+            const controls = `
+                <div class="absolute right-2 top-2 section-controls z-20 flex gap-2">
+                    <button onclick="moveUp(this)" class="bg-white shadow p-1 rounded hover:text-indigo-600"><i class="fas fa-arrow-up"></i></button>
+                    <button onclick="moveDown(this)" class="bg-white shadow p-1 rounded hover:text-indigo-600"><i class="fas fa-arrow-down"></i></button>
+                    <button onclick="deleteSection(this)" class="bg-red-500 shadow p-1 rounded text-white hover:bg-red-600"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+
+            switch(draggedType) {
+                case 'hero':
+                    html = `
+                    <section class="editable-section relative group hover:outline-dashed outline-indigo-300">
+                        ${controls}
+                        <div class="relative h-96 w-full overflow-hidden flex items-center justify-center bg-slate-800 text-center">
+                            <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?fit=crop&w=1200&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 cursor-pointer" onclick="triggerUpload(this)">
+                            <div class="relative z-10 p-4">
+                                <h1 contenteditable="true" class="text-5xl font-bold text-white mb-4 drop-shadow-lg">Catchy Headline</h1>
+                                <p contenteditable="true" class="text-xl text-white drop-shadow-lg">Click text to edit. Click background to change image.</p>
+                            </div>
+                        </div>
+                    </section>`;
+                    break;
+                case 'text-block':
+                    html = `
+                    <section class="editable-section relative group py-12 px-6 bg-white">
+                        ${controls}
+                        <div class="max-w-3xl mx-auto">
+                            <h2 contenteditable="true" class="text-3xl font-bold mb-4 text-slate-800">New Section Title</h2>
+                            <p contenteditable="true" class="text-lg text-slate-600 leading-relaxed">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p>
+                        </div>
+                    </section>`;
+                    break;
+                case 'two-col':
+                    html = `
+                    <section class="editable-section relative group py-12 px-6 bg-slate-50">
+                        ${controls}
+                        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
+                            <img src="https://via.placeholder.com/600x400?text=Click+to+Add+Image" class="rounded shadow-lg w-full cursor-pointer hover:opacity-80 transition" onclick="triggerUpload(this)">
+                            <div>
+                                <h3 contenteditable="true" class="text-2xl font-bold mb-3 text-slate-800">Feature Description</h3>
+                                <p contenteditable="true" class="text-slate-600">Explain your product or service here. This layout works great on mobile devices by stacking vertically.</p>
+                            </div>
+                        </div>
+                    </section>`;
+                    break;
+                case 'gallery':
+                    html = `
+                    <section class="editable-section relative group py-12 px-6 bg-white">
+                        ${controls}
+                        <div class="max-w-6xl mx-auto">
+                            <h2 contenteditable="true" class="text-center text-3xl font-bold mb-8">Gallery</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <img src="https://via.placeholder.com/400x300" class="w-full h-48 object-cover rounded cursor-pointer hover:opacity-80" onclick="triggerUpload(this)">
+                                <img src="https://via.placeholder.com/400x300" class="w-full h-48 object-cover rounded cursor-pointer hover:opacity-80" onclick="triggerUpload(this)">
+                                <img src="https://via.placeholder.com/400x300" class="w-full h-48 object-cover rounded cursor-pointer hover:opacity-80" onclick="triggerUpload(this)">
+                            </div>
+                        </div>
+                    </section>`;
+                    break;
+                case 'video':
+                     html = `
+                    <section class="editable-section relative group py-12 px-6 bg-black">
+                        ${controls}
+                        <div class="max-w-4xl mx-auto text-center">
+                             <h2 contenteditable="true" class="text-white text-2xl mb-4">Watch Our Video</h2>
+                             <div class="relative w-full aspect-video bg-slate-800 rounded flex items-center justify-center border border-slate-700">
+                                <video controls class="w-full h-full hidden" src=""></video>
+                                <div class="text-center cursor-pointer p-10 hover:bg-slate-700/50 w-full h-full flex flex-col items-center justify-center transition" onclick="triggerUpload(this, 'video')">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-slate-400 mb-2"></i>
+                                    <span class="text-slate-400">Click to upload video (MP4)</span>
+                                </div>
+                             </div>
+                        </div>
+                    </section>`;
+                    break;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = html;
+            document.getElementById('canvas-area').appendChild(wrapper.firstElementChild);
+        }
+
+        /* --- SECTION CONTROLS --- */
+
+        function deleteSection(btn) {
+            if(confirm("Delete this section?")) {
+                btn.closest('section').remove();
+                if(document.getElementById('canvas-area').children.length === 1) { // 1 because empty-state is hidden
+                     document.getElementById('empty-state').style.display = 'block';
+                }
+            }
+        }
+
+        function moveUp(btn) {
+            const section = btn.closest('section');
+            if (section.previousElementSibling && section.previousElementSibling.id !== 'empty-state') {
+                section.parentNode.insertBefore(section, section.previousElementSibling);
+            }
+        }
+
+        function moveDown(btn) {
+            const section = btn.closest('section');
+            if (section.nextElementSibling) {
+                section.parentNode.insertBefore(section.nextElementSibling, section);
+            }
+        }
+
+        /* --- TEXT EDITING --- */
+
+        // Show toolbar on selection
+        document.addEventListener('selectionchange', () => {
+            const selection = window.getSelection();
+            const toolbar = document.getElementById('editor-toolbar');
+            
+            if (selection.rangeCount > 0 && !selection.isCollapsed) {
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                
+                // Only show if selection is within canvas
+                if(document.getElementById('canvas-area').contains(selection.anchorNode)) {
+                    toolbar.style.display = 'flex';
+                    toolbar.style.top = `${rect.top - 50 + window.scrollY}px`;
+                    toolbar.style.left = `${rect.left}px`;
+                }
+            } else {
+               // Optional: Keep toolbar visible if interacting with it, otherwise hide
+               // For simplicity in this demo, we hide it immediately on deselect
+               // toolbar.style.display = 'none';
+            }
+        });
+
+        // Hide toolbar when clicking elsewhere
+        document.addEventListener('mousedown', (e) => {
+            if (!document.getElementById('editor-toolbar').contains(e.target)) {
+                 document.getElementById('editor-toolbar').style.display = 'none';
+            }
+        });
+
+        function execCmd(command, value = null) {
+            document.execCommand(command, false, value);
+        }
+
+        /* --- MEDIA UPLOAD --- */
+
+        function triggerUpload(element, type = 'image') {
+            currentEditingImg = element;
+            const input = document.getElementById('media-upload');
+            input.setAttribute('accept', type === 'video' ? 'video/*' : 'image/*');
+            input.click();
+        }
+
+        document.getElementById('media-upload').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if(currentEditingImg.tagName === 'DIV' && currentEditingImg.closest('section').querySelector('video')) {
+                        // It's the video placeholder div
+                        const videoEl = currentEditingImg.previousElementSibling; // The video tag
+                        videoEl.src = e.target.result;
+                        videoEl.classList.remove('hidden');
+                        currentEditingImg.classList.add('hidden'); // Hide placeholder
+                    } else {
+                        // Image
+                        currentEditingImg.src = e.target.result;
+                    }
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+            // Reset input
+            this.value = '';
+        });
+
+        /* --- MODAL & SETTINGS --- */
+
+        function loadTemplate(type) {
+            document.getElementById('start-modal').style.display = 'none';
+            const canvas = document.getElementById('canvas-area');
+            const empty = document.getElementById('empty-state');
+            
+            if(type !== 'blank') {
+                empty.style.display = 'none';
+                // Insert template HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = templates[type];
+                while (tempDiv.firstChild) {
+                    canvas.appendChild(tempDiv.firstChild);
+                }
+            }
+        }
+
+        function clearCanvas() {
+            if(confirm("Are you sure? This will delete everything.")) {
+                const canvas = document.getElementById('canvas-area');
+                canvas.innerHTML = '<div class="p-10 text-center text-slate-400 border-2 border-dashed border-slate-300 m-10 rounded-xl pointer-events-none" id="empty-state">Start by choosing a template or drag elements here</div>';
+            }
+        }
+
+        function setView(mode) {
+            const canvas = document.getElementById('canvas-area');
+            if (mode === 'mobile') {
+                canvas.classList.add('mobile-view');
+            } else {
+                canvas.classList.remove('mobile-view');
+            }
+        }
+
+        /* --- SEO --- */
+        function openSeoModal() {
+            document.getElementById('input-seo-title').value = document.getElementById('seo-title').value;
+            document.getElementById('input-seo-desc').value = document.getElementById('seo-desc').value;
+            document.getElementById('input-seo-keywords').value = document.getElementById('seo-keywords').value;
+            document.getElementById('seo-modal').classList.remove('hidden');
+        }
+
+        function closeSeoModal() {
+            document.getElementById('seo-modal').classList.add('hidden');
+        }
+
+        function saveSeo() {
+            document.getElementById('seo-title').value = document.getElementById('input-seo-title').value;
+            document.getElementById('seo-desc').value = document.getElementById('input-seo-desc').value;
+            document.getElementById('seo-keywords').value = document.getElementById('input-seo-keywords').value;
+            closeSeoModal();
+            alert("SEO Settings Saved!");
+        }
+
+        /* --- EXPORT --- */
+
+        function exportWebsite() {
+            const title = document.getElementById('seo-title').value;
+            const desc = document.getElementById('seo-desc').value;
+            const keywords = document.getElementById('seo-keywords').value;
+            
+            // Clone canvas to clean up UI elements
+            const canvasClone = document.getElementById('canvas-area').cloneNode(true);
+            
+            // Remove editor-specific classes and elements
+            canvasClone.classList.remove('mobile-view', 'shadow-xl');
+            canvasClone.querySelectorAll('.section-controls').forEach(el => el.remove());
+            canvasClone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+            canvasClone.querySelectorAll('.editable-section').forEach(el => {
+                el.classList.remove('editable-section', 'group', 'hover:outline-dashed');
+                el.style.outline = 'none';
+            });
+            // Remove empty state
+            const emptyState = canvasClone.querySelector('#empty-state');
+            if(emptyState) emptyState.remove();
+
+            const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <meta name="description" content="${desc}">
+    <meta name="keywords" content="${keywords}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@400;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-white text-slate-800">
+    ${canvasClone.innerHTML}
+    
+    <footer class="bg-slate-900 text-white py-8 text-center mt-12">
+        <p class="text-sm opacity-50">Built with <a href="https://ctrlswipe.com/" target="_blank" class="underline hover:text-white">Brsh by CTRL Swipe</a></p>
+    </footer>
+</body>
+</html>`;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'index.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize
+        document.getElementById('start-modal').style.display = 'flex';
+    </script>
+</body>
+</html>
