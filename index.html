@@ -51,7 +51,7 @@
         .section-controls {
             opacity: 0;
             transition: opacity 0.2s;
-            pointer-events: none; /* Prevent accidental clicks when not hovering */
+            pointer-events: none;
         }
 
         [contenteditable="true"]:focus {
@@ -76,6 +76,16 @@
             border: 12px solid #1f2937;
             overflow-x: hidden;
         }
+
+        /* Template Selection Cards */
+        .template-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .template-card:active {
+            transform: scale(0.98);
+            border-color: #4f46e5;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans h-screen overflow-hidden flex flex-col">
@@ -93,18 +103,18 @@
             </div>
             <div class="h-6 w-px bg-slate-300 mx-2"></div>
             <!-- View Modes -->
-            <button onclick="window.app.setView('desktop')" class="p-2 rounded-lg hover:bg-white/40 transition text-slate-600 hover:text-indigo-600" title="Desktop View"><i class="fas fa-desktop"></i></button>
-            <button onclick="window.app.setView('mobile')" class="p-2 rounded-lg hover:bg-white/40 transition text-slate-600 hover:text-indigo-600" title="Mobile View"><i class="fas fa-mobile-alt"></i></button>
+            <button id="view-desktop" class="p-2 rounded-lg hover:bg-white/40 transition text-slate-600 hover:text-indigo-600" title="Desktop View"><i class="fas fa-desktop"></i></button>
+            <button id="view-mobile" class="p-2 rounded-lg hover:bg-white/40 transition text-slate-600 hover:text-indigo-600" title="Mobile View"><i class="fas fa-mobile-alt"></i></button>
         </div>
 
         <div class="flex items-center gap-3">
-            <button onclick="window.app.openSeoModal()" class="px-4 py-2 rounded-lg bg-white/50 hover:bg-white/80 transition text-sm font-medium border border-transparent hover:border-slate-200">
+            <button id="btn-seo" class="px-4 py-2 rounded-lg bg-white/50 hover:bg-white/80 transition text-sm font-medium border border-transparent hover:border-slate-200">
                 <i class="fas fa-search mr-2 text-slate-500"></i>SEO
             </button>
-            <button onclick="window.app.clearCanvas()" class="px-4 py-2 rounded-lg bg-red-100/50 hover:bg-red-100 transition text-red-600 text-sm font-medium border border-transparent hover:border-red-200">
+            <button id="btn-clear" class="px-4 py-2 rounded-lg bg-red-100/50 hover:bg-red-100 transition text-red-600 text-sm font-medium border border-transparent hover:border-red-200">
                 <i class="fas fa-trash mr-2"></i>Clear
             </button>
-            <button onclick="window.app.exportWebsite()" class="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/30 transition text-sm font-bold active:scale-95">
+            <button id="btn-export" class="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/30 transition text-sm font-bold active:scale-95">
                 <i class="fas fa-download mr-2"></i>Export
             </button>
         </div>
@@ -121,7 +131,7 @@
             </div>
             
             <div class="space-y-3 overflow-y-auto pr-1 custom-scroll">
-                <div class="draggable-item p-4 bg-slate-800/80 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-4 border border-slate-700 hover:border-indigo-500/50 group" draggable="true" ondragstart="window.app.drag(event)" data-type="hero">
+                <div class="draggable-item p-4 bg-slate-800/80 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-4 border border-slate-700 hover:border-indigo-500/50 group" draggable="true" data-type="hero">
                     <div class="w-10 h-10 rounded-lg bg-indigo-900/50 flex items-center justify-center group-hover:bg-indigo-600 transition text-indigo-300 group-hover:text-white">
                         <i class="fas fa-image text-lg"></i>
                     </div>
@@ -131,7 +141,7 @@
                     </div>
                 </div>
 
-                <div class="draggable-item p-4 bg-slate-800/80 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-4 border border-slate-700 hover:border-pink-500/50 group" draggable="true" ondragstart="window.app.drag(event)" data-type="text-block">
+                <div class="draggable-item p-4 bg-slate-800/80 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-4 border border-slate-700 hover:border-pink-500/50 group" draggable="true" data-type="text-block">
                     <div class="w-10 h-10 rounded-lg bg-pink-900/50 flex items-center justify-center group-hover:bg-pink-600 transition text-pink-300 group-hover:text-white">
                         <i class="fas fa-align-left text-lg"></i>
                     </div>
@@ -141,7 +151,7 @@
                     </div>
                 </div>
 
-                <div class="draggable-item p-4 bg-slate-800/80 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-4 border border-slate-700 hover:border-emerald-500/50 group" draggable="true" ondragstart="window.app.drag(event)" data-type="two-col">
+                <div class="draggable-item p-4 bg-slate-800/80 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-4 border border-slate-700 hover:border-emerald-500/50 group" draggable="true" data-type="two-col">
                     <div class="w-10 h-10 rounded-lg bg-emerald-900/50 flex items-center justify-center group-hover:bg-emerald-600 transition text-emerald-300 group-hover:text-white">
                         <i class="fas fa-columns text-lg"></i>
                     </div>
@@ -151,7 +161,7 @@
                     </div>
                 </div>
 
-                <div class="draggable-item p-4 bg-slate-800/80 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-4 border border-slate-700 hover:border-amber-500/50 group" draggable="true" ondragstart="window.app.drag(event)" data-type="gallery">
+                <div class="draggable-item p-4 bg-slate-800/80 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-4 border border-slate-700 hover:border-amber-500/50 group" draggable="true" data-type="gallery">
                     <div class="w-10 h-10 rounded-lg bg-amber-900/50 flex items-center justify-center group-hover:bg-amber-600 transition text-amber-300 group-hover:text-white">
                         <i class="fas fa-images text-lg"></i>
                     </div>
@@ -161,7 +171,7 @@
                     </div>
                 </div>
                 
-                <div class="draggable-item p-4 bg-slate-800/80 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-4 border border-slate-700 hover:border-red-500/50 group" draggable="true" ondragstart="window.app.drag(event)" data-type="video">
+                <div class="draggable-item p-4 bg-slate-800/80 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-4 border border-slate-700 hover:border-red-500/50 group" draggable="true" data-type="video">
                     <div class="w-10 h-10 rounded-lg bg-red-900/50 flex items-center justify-center group-hover:bg-red-600 transition text-red-300 group-hover:text-white">
                         <i class="fas fa-video text-lg"></i>
                     </div>
@@ -170,7 +180,7 @@
                         <p class="text-xs text-slate-400">MP4 Upload Support</p>
                     </div>
                 </div>
-                 <div class="draggable-item p-4 bg-slate-800/80 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-4 border border-slate-700 hover:border-blue-500/50 group" draggable="true" ondragstart="window.app.drag(event)" data-type="footer">
+                 <div class="draggable-item p-4 bg-slate-800/80 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-700 transition flex items-center gap-4 border border-slate-700 hover:border-blue-500/50 group" draggable="true" data-type="footer">
                     <div class="w-10 h-10 rounded-lg bg-blue-900/50 flex items-center justify-center group-hover:bg-blue-600 transition text-blue-300 group-hover:text-white">
                         <i class="fas fa-shoe-prints text-lg"></i>
                     </div>
@@ -185,20 +195,20 @@
         <!-- Canvas Wrapper -->
         <div class="flex-1 overflow-y-auto flex justify-center bg-slate-200/50 relative" id="canvas-wrapper">
             <!-- The Actual Website Canvas -->
-            <div id="canvas-area" class="w-full max-w-6xl mx-auto pb-32" ondrop="window.app.drop(event)" ondragover="window.app.allowDrop(event)">
+            <div id="canvas-area" class="w-full max-w-6xl mx-auto pb-32">
                 <!-- Empty State -->
                 <div class="flex flex-col items-center justify-center h-[50vh] text-slate-400 m-10 border-4 border-dashed border-slate-300 rounded-3xl" id="empty-state">
                     <i class="fas fa-layer-group text-6xl mb-4 text-slate-300"></i>
                     <p class="text-xl font-medium">Your canvas is empty</p>
                     <p class="text-sm">Drag components from the left sidebar or choose a template</p>
-                    <button onclick="document.getElementById('start-modal').style.display = 'flex'" class="mt-4 px-4 py-2 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 font-medium">Open Templates</button>
+                    <button id="btn-open-templates" class="mt-4 px-4 py-2 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 font-medium">Open Templates</button>
                 </div>
             </div>
         </div>
 
         <!-- Floating Editor Toolbar -->
         <div id="editor-toolbar" class="hidden absolute z-50 glass bg-white/95 p-2 rounded-xl shadow-2xl flex gap-2 items-center border border-slate-200 animate-fade-in-up">
-            <select onchange="window.app.execCmd('fontName', this.value)" class="bg-transparent text-sm border-r border-gray-300 pr-2 mr-1 outline-none font-medium text-slate-600 cursor-pointer h-8">
+            <select id="font-family-selector" class="bg-transparent text-sm border-r border-gray-300 pr-2 mr-1 outline-none font-medium text-slate-600 cursor-pointer h-8">
                 <option value="Inter">Sans Serif</option>
                 <option value="Playfair Display">Serif</option>
                 <option value="Roboto Mono">Mono</option>
@@ -206,15 +216,15 @@
                 <option value="Comic Sans MS">Comic</option>
             </select>
             <div class="h-6 w-px bg-slate-200 mx-1"></div>
-            <button onclick="window.app.execCmd('bold')" class="w-8 h-8 flex items-center justify-center rounded hover:bg-indigo-50 hover:text-indigo-600 transition"><i class="fas fa-bold"></i></button>
-            <button onclick="window.app.execCmd('italic')" class="w-8 h-8 flex items-center justify-center rounded hover:bg-indigo-50 hover:text-indigo-600 transition"><i class="fas fa-italic"></i></button>
-            <button onclick="window.app.execCmd('underline')" class="w-8 h-8 flex items-center justify-center rounded hover:bg-indigo-50 hover:text-indigo-600 transition"><i class="fas fa-underline"></i></button>
+            <button data-cmd="bold" class="toolbar-btn w-8 h-8 flex items-center justify-center rounded hover:bg-indigo-50 hover:text-indigo-600 transition"><i class="fas fa-bold"></i></button>
+            <button data-cmd="italic" class="toolbar-btn w-8 h-8 flex items-center justify-center rounded hover:bg-indigo-50 hover:text-indigo-600 transition"><i class="fas fa-italic"></i></button>
+            <button data-cmd="underline" class="toolbar-btn w-8 h-8 flex items-center justify-center rounded hover:bg-indigo-50 hover:text-indigo-600 transition"><i class="fas fa-underline"></i></button>
             <div class="h-6 w-px bg-slate-200 mx-1"></div>
-            <button onclick="window.app.execCmd('justifyLeft')" class="w-8 h-8 flex items-center justify-center rounded hover:bg-indigo-50 hover:text-indigo-600 transition"><i class="fas fa-align-left"></i></button>
-            <button onclick="window.app.execCmd('justifyCenter')" class="w-8 h-8 flex items-center justify-center rounded hover:bg-indigo-50 hover:text-indigo-600 transition"><i class="fas fa-align-center"></i></button>
+            <button data-cmd="justifyLeft" class="toolbar-btn w-8 h-8 flex items-center justify-center rounded hover:bg-indigo-50 hover:text-indigo-600 transition"><i class="fas fa-align-left"></i></button>
+            <button data-cmd="justifyCenter" class="toolbar-btn w-8 h-8 flex items-center justify-center rounded hover:bg-indigo-50 hover:text-indigo-600 transition"><i class="fas fa-align-center"></i></button>
             <div class="h-6 w-px bg-slate-200 mx-1"></div>
             <div class="relative w-8 h-8 overflow-hidden rounded-full border border-slate-200 cursor-pointer hover:scale-110 transition">
-                <input type="color" onchange="window.app.execCmd('foreColor', this.value)" class="absolute -top-2 -left-2 w-12 h-12 p-0 border-0 cursor-pointer" title="Text Color">
+                <input type="color" id="color-picker" class="absolute -top-2 -left-2 w-12 h-12 p-0 border-0 cursor-pointer" title="Text Color">
             </div>
         </div>
 
@@ -223,7 +233,7 @@
     <!-- Start Modal -->
     <div id="start-modal" class="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-8 max-w-5xl w-full shadow-2xl relative overflow-hidden">
-            <button onclick="document.getElementById('start-modal').style.display='none'" class="absolute top-4 right-4 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center hover:bg-slate-200 transition">
+            <button id="close-modal-btn" class="absolute top-4 right-4 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center hover:bg-slate-200 transition">
                 <i class="fas fa-times text-slate-500"></i>
             </button>
             
@@ -234,16 +244,16 @@
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Template 1: Blank -->
-                <div onclick="window.app.loadTemplate('blank')" class="group cursor-pointer border-2 border-slate-100 hover:border-indigo-500 rounded-2xl p-6 transition text-center hover:shadow-2xl hover:-translate-y-1 bg-white">
-                    <div class="h-40 bg-slate-50 rounded-xl mb-6 flex items-center justify-center group-hover:bg-indigo-50 transition border border-dashed border-slate-300 group-hover:border-indigo-300">
-                        <i class="fas fa-plus text-4xl text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                <div id="template-blank" class="template-card border-2 border-slate-100 hover:border-indigo-500 rounded-2xl p-6 bg-white hover:shadow-2xl hover:-translate-y-1">
+                    <div class="h-40 bg-slate-50 rounded-xl mb-6 flex items-center justify-center group-hover:bg-indigo-50 transition border border-dashed border-slate-300">
+                        <i class="fas fa-plus text-4xl text-slate-300"></i>
                     </div>
                     <h3 class="font-bold text-xl mb-2 text-slate-800">Blank Canvas</h3>
                     <p class="text-sm text-slate-500">Start fresh. Total freedom.</p>
                 </div>
 
                 <!-- Template 2: Portfolio -->
-                <div onclick="window.app.loadTemplate('portfolio')" class="group cursor-pointer border-2 border-slate-100 hover:border-indigo-500 rounded-2xl p-6 transition text-center hover:shadow-2xl hover:-translate-y-1 bg-white">
+                <div id="template-portfolio" class="template-card border-2 border-slate-100 hover:border-indigo-500 rounded-2xl p-6 bg-white hover:shadow-2xl hover:-translate-y-1">
                     <div class="h-40 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl mb-6 flex items-center justify-center overflow-hidden shadow-inner relative">
                          <div class="absolute inset-x-8 top-8 bottom-0 bg-white/20 backdrop-blur-sm rounded-t-lg"></div>
                          <i class="fas fa-camera text-4xl text-white/50 relative z-10"></i>
@@ -253,7 +263,7 @@
                 </div>
 
                 <!-- Template 3: Business -->
-                <div onclick="window.app.loadTemplate('business')" class="group cursor-pointer border-2 border-slate-100 hover:border-indigo-500 rounded-2xl p-6 transition text-center hover:shadow-2xl hover:-translate-y-1 bg-white">
+                <div id="template-business" class="template-card border-2 border-slate-100 hover:border-indigo-500 rounded-2xl p-6 bg-white hover:shadow-2xl hover:-translate-y-1">
                     <div class="h-40 bg-slate-800 rounded-xl mb-6 flex flex-col items-center justify-center overflow-hidden relative">
                          <div class="w-full h-1/2 border-b border-slate-700 flex items-center justify-center">
                              <div class="w-20 h-2 bg-slate-600 rounded"></div>
@@ -294,8 +304,8 @@
                 </div>
             </div>
             <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-slate-100">
-                <button onclick="window.app.closeSeoModal()" class="px-5 py-2.5 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition">Cancel</button>
-                <button onclick="window.app.saveSeo()" class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-lg shadow-indigo-200 transition">Save Changes</button>
+                <button id="btn-seo-cancel" class="px-5 py-2.5 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition">Cancel</button>
+                <button id="btn-seo-save" class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-lg shadow-indigo-200 transition">Save Changes</button>
             </div>
         </div>
     </div>
@@ -304,22 +314,28 @@
     <input type="file" id="media-upload" class="hidden" accept="image/*,video/*">
 
     <script>
-        // Use an IIFE and attach to window to ensure global accessibility in all environments
-        (function() {
+        document.addEventListener('DOMContentLoaded', () => {
             
-            // --- State ---
+            // --- Global State ---
             let draggedType = null;
             let currentEditingImg = null;
 
+            // --- UI Elements ---
+            const canvasArea = document.getElementById('canvas-area');
+            const startModal = document.getElementById('start-modal');
+            const seoModal = document.getElementById('seo-modal');
+            const emptyState = document.getElementById('empty-state');
+            const editorToolbar = document.getElementById('editor-toolbar');
+            
             // --- Templates Data ---
             const templates = {
                 blank: ``,
                 portfolio: `
                     <section class="editable-section relative group border-b border-transparent hover:border-indigo-100 transition-all bg-slate-900">
                         <div class="absolute right-4 top-4 section-controls z-20 flex gap-2 bg-white/10 backdrop-blur rounded-lg p-1 border border-white/20">
-                            <button onclick="window.app.moveUp(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-white/20 text-white"><i class="fas fa-arrow-up"></i></button>
-                            <button onclick="window.app.moveDown(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-white/20 text-white"><i class="fas fa-arrow-down"></i></button>
-                            <button onclick="window.app.deleteSection(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500 text-red-300 hover:text-white transition"><i class="fas fa-trash"></i></button>
+                            <button class="btn-move-up w-8 h-8 flex items-center justify-center rounded hover:bg-white/20 text-white"><i class="fas fa-arrow-up"></i></button>
+                            <button class="btn-move-down w-8 h-8 flex items-center justify-center rounded hover:bg-white/20 text-white"><i class="fas fa-arrow-down"></i></button>
+                            <button class="btn-delete w-8 h-8 flex items-center justify-center rounded hover:bg-red-500 text-red-300 hover:text-white transition"><i class="fas fa-trash"></i></button>
                         </div>
                         <div class="py-24 px-6 text-center max-w-4xl mx-auto">
                             <h1 contenteditable="true" class="text-6xl font-bold mb-6 font-[Playfair Display] text-white leading-tight">Capturing <span class="text-indigo-400">Moments</span> in Time.</h1>
@@ -332,16 +348,16 @@
                     </section>
                     <section class="editable-section relative group border-b border-transparent hover:border-indigo-100 transition-all bg-white">
                         <div class="absolute right-4 top-4 section-controls z-20 flex gap-2 bg-white shadow-lg rounded-lg p-1 border border-slate-100">
-                            <button onclick="window.app.moveUp(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600"><i class="fas fa-arrow-up"></i></button>
-                            <button onclick="window.app.moveDown(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600"><i class="fas fa-arrow-down"></i></button>
-                            <button onclick="window.app.deleteSection(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-50 text-red-500 transition"><i class="fas fa-trash"></i></button>
+                            <button class="btn-move-up w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600"><i class="fas fa-arrow-up"></i></button>
+                            <button class="btn-move-down w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600"><i class="fas fa-arrow-down"></i></button>
+                            <button class="btn-delete w-8 h-8 flex items-center justify-center rounded hover:bg-red-50 text-red-500 transition"><i class="fas fa-trash"></i></button>
                         </div>
                         <div class="py-20 px-6 max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-                            <div class="relative group cursor-pointer" onclick="window.app.triggerUpload(this)">
+                            <div class="relative group cursor-pointer img-upload-trigger">
                                 <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition rounded-2xl flex items-center justify-center">
                                     <i class="fas fa-camera text-white opacity-0 group-hover:opacity-100 text-3xl drop-shadow-lg transform translate-y-4 group-hover:translate-y-0 transition"></i>
                                 </div>
-                                <img src="https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80&w=800" class="rounded-2xl shadow-2xl w-full h-[500px] object-cover">
+                                <img src="https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80&w=800" class="rounded-2xl shadow-2xl w-full h-[500px] object-cover pointer-events-none">
                             </div>
                             <div>
                                 <h2 contenteditable="true" class="text-4xl font-bold mb-6 text-slate-900 font-[Playfair Display]">About the Artist</h2>
@@ -358,9 +374,9 @@
                 business: `
                     <section class="editable-section relative group border-b border-transparent hover:border-indigo-100 transition-all bg-indigo-700">
                         <div class="absolute right-4 top-4 section-controls z-20 flex gap-2 bg-white/10 backdrop-blur rounded-lg p-1 border border-white/20">
-                            <button onclick="window.app.moveUp(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-white/20 text-white"><i class="fas fa-arrow-up"></i></button>
-                            <button onclick="window.app.moveDown(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-white/20 text-white"><i class="fas fa-arrow-down"></i></button>
-                            <button onclick="window.app.deleteSection(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500 text-red-300 hover:text-white transition"><i class="fas fa-trash"></i></button>
+                            <button class="btn-move-up w-8 h-8 flex items-center justify-center rounded hover:bg-white/20 text-white"><i class="fas fa-arrow-up"></i></button>
+                            <button class="btn-move-down w-8 h-8 flex items-center justify-center rounded hover:bg-white/20 text-white"><i class="fas fa-arrow-down"></i></button>
+                            <button class="btn-delete w-8 h-8 flex items-center justify-center rounded hover:bg-red-500 text-red-300 hover:text-white transition"><i class="fas fa-trash"></i></button>
                         </div>
                         <div class="relative py-32 px-6 text-center text-white">
                             <h1 contenteditable="true" class="text-5xl font-bold mb-4 tracking-tight">Scale Your Business</h1>
@@ -370,9 +386,9 @@
                     </section>
                     <section class="editable-section relative group border-b border-transparent hover:border-indigo-100 transition-all bg-slate-50">
                         <div class="absolute right-4 top-4 section-controls z-20 flex gap-2 bg-white shadow-lg rounded-lg p-1 border border-slate-100">
-                            <button onclick="window.app.moveUp(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600"><i class="fas fa-arrow-up"></i></button>
-                            <button onclick="window.app.moveDown(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600"><i class="fas fa-arrow-down"></i></button>
-                            <button onclick="window.app.deleteSection(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-50 text-red-500 transition"><i class="fas fa-trash"></i></button>
+                            <button class="btn-move-up w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600"><i class="fas fa-arrow-up"></i></button>
+                            <button class="btn-move-down w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600"><i class="fas fa-arrow-down"></i></button>
+                            <button class="btn-delete w-8 h-8 flex items-center justify-center rounded hover:bg-red-50 text-red-500 transition"><i class="fas fa-trash"></i></button>
                         </div>
                         <div class="py-20 px-6 max-w-6xl mx-auto">
                             <div class="text-center mb-16">
@@ -401,405 +417,422 @@
                 `
             };
 
-            // --- Define Functions ---
+            // --- Logic Functions ---
 
-            const app = {
-                // Drag & Drop
-                drag: (ev) => {
-                    draggedType = ev.target.dataset.type;
-                    ev.dataTransfer.setData("text/plain", draggedType);
-                },
+            function loadTemplate(type) {
+                console.log("Loading template:", type);
+                startModal.style.display = 'none';
+                
+                if(type !== 'blank') {
+                    emptyState.style.display = 'none';
+                    // Clear sections except empty state
+                    const existingSections = canvasArea.querySelectorAll('section');
+                    existingSections.forEach(s => s.remove());
 
-                allowDrop: (ev) => {
-                    ev.preventDefault();
-                },
-
-                drop: (ev) => {
-                    ev.preventDefault();
-                    document.getElementById('empty-state').style.display = 'none';
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = templates[type];
                     
-                    const controls = `
-                        <div class="absolute right-4 top-4 section-controls z-20 flex gap-2 bg-white shadow-lg rounded-lg p-1 border border-slate-100">
-                            <button onclick="window.app.moveUp(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600"><i class="fas fa-arrow-up"></i></button>
-                            <button onclick="window.app.moveDown(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600"><i class="fas fa-arrow-down"></i></button>
-                            <button onclick="window.app.deleteSection(this)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-50 text-red-500 transition"><i class="fas fa-trash"></i></button>
-                        </div>
-                    `;
-
-                    let html = '';
-                    switch(draggedType) {
-                        case 'hero':
-                            html = `
-                            <section class="editable-section relative group hover:outline-dashed outline-indigo-300">
-                                ${controls}
-                                <div class="relative h-[500px] w-full overflow-hidden flex items-center justify-center bg-slate-900 text-center">
-                                    <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?fit=crop&w=1600&q=80" class="absolute inset-0 w-full h-full object-cover opacity-60 cursor-pointer transition hover:scale-105 duration-700" onclick="window.app.triggerUpload(this)">
-                                    <div class="relative z-10 p-4 max-w-4xl">
-                                        <h1 contenteditable="true" class="text-6xl font-extrabold text-white mb-6 drop-shadow-xl leading-tight">Your Headline Here</h1>
-                                        <p contenteditable="true" class="text-2xl text-slate-200 drop-shadow-md font-light">Click to edit this text. Click the background to upload an image.</p>
-                                        <div class="mt-8">
-                                            <button contenteditable="true" class="px-8 py-3 bg-white text-slate-900 rounded-full font-bold hover:bg-indigo-50 transition">Call to Action</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>`;
-                            break;
-                        case 'text-block':
-                            html = `
-                            <section class="editable-section relative group py-24 px-6 bg-white">
-                                ${controls}
-                                <div class="max-w-3xl mx-auto text-center">
-                                    <h2 contenteditable="true" class="text-4xl font-bold mb-6 text-slate-800">Compelling Title</h2>
-                                    <p contenteditable="true" class="text-xl text-slate-600 leading-relaxed font-light">This is a text block. You can use it to introduce your brand, tell a story, or explain your value proposition. Click anywhere to start typing.</p>
-                                </div>
-                            </section>`;
-                            break;
-                        case 'two-col':
-                            html = `
-                            <section class="editable-section relative group py-20 px-6 bg-slate-50">
-                                ${controls}
-                                <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-                                    <div class="relative group/img cursor-pointer" onclick="window.app.triggerUpload(this)">
-                                        <div class="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition rounded-xl flex items-center justify-center">
-                                             <i class="fas fa-image text-white opacity-0 group-hover/img:opacity-100 text-3xl drop-shadow-lg"></i>
-                                        </div>
-                                        <img src="https://via.placeholder.com/800x600?text=Upload+Image" class="rounded-xl shadow-xl w-full">
-                                    </div>
-                                    <div>
-                                        <h3 contenteditable="true" class="text-3xl font-bold mb-4 text-slate-800">Feature Highlight</h3>
-                                        <p contenteditable="true" class="text-lg text-slate-600 leading-relaxed mb-6">Describe a key feature or benefit of your product here. The split layout is perfect for showcasing visual elements alongside descriptive text.</p>
-                                        <button contenteditable="true" class="text-indigo-600 font-bold hover:text-indigo-800 flex items-center gap-2">Learn more <i class="fas fa-arrow-right"></i></button>
-                                    </div>
-                                </div>
-                            </section>`;
-                            break;
-                        case 'gallery':
-                            html = `
-                            <section class="editable-section relative group py-20 px-6 bg-white">
-                                ${controls}
-                                <div class="max-w-7xl mx-auto">
-                                    <h2 contenteditable="true" class="text-center text-3xl font-bold mb-12">Image Gallery</h2>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <img src="https://via.placeholder.com/400x300/e2e8f0/94a3b8?text=Image+1" class="w-full h-64 object-cover rounded-xl shadow-md cursor-pointer hover:opacity-80 transition hover:-translate-y-1" onclick="window.app.triggerUpload(this)">
-                                        <img src="https://via.placeholder.com/400x300/e2e8f0/94a3b8?text=Image+2" class="w-full h-64 object-cover rounded-xl shadow-md cursor-pointer hover:opacity-80 transition hover:-translate-y-1" onclick="window.app.triggerUpload(this)">
-                                        <img src="https://via.placeholder.com/400x300/e2e8f0/94a3b8?text=Image+3" class="w-full h-64 object-cover rounded-xl shadow-md cursor-pointer hover:opacity-80 transition hover:-translate-y-1" onclick="window.app.triggerUpload(this)">
-                                    </div>
-                                </div>
-                            </section>`;
-                            break;
-                        case 'video':
-                            html = `
-                            <section class="editable-section relative group py-20 px-6 bg-slate-900">
-                                ${controls}
-                                <div class="max-w-5xl mx-auto text-center">
-                                     <h2 contenteditable="true" class="text-white text-3xl font-bold mb-8">Watch Our Story</h2>
-                                     <div class="relative w-full aspect-video bg-slate-800 rounded-2xl flex items-center justify-center border border-slate-700 shadow-2xl overflow-hidden">
-                                        <video controls class="w-full h-full hidden" src=""></video>
-                                        <div class="text-center cursor-pointer p-10 hover:bg-slate-700/50 w-full h-full flex flex-col items-center justify-center transition group/vid" onclick="window.app.triggerUpload(this, 'video')">
-                                            <div class="w-20 h-20 rounded-full bg-slate-700 group-hover/vid:bg-red-600 flex items-center justify-center transition mb-4">
-                                                <i class="fas fa-play text-white text-2xl pl-1"></i>
-                                            </div>
-                                            <span class="text-slate-400 group-hover/vid:text-white transition font-medium">Click to upload video (MP4)</span>
-                                        </div>
-                                     </div>
-                                </div>
-                            </section>`;
-                            break;
-                         case 'footer':
-                            html = `
-                            <section class="editable-section relative group py-12 px-6 bg-slate-950 text-slate-400 border-t border-slate-800">
-                                ${controls}
-                                <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
-                                    <div class="col-span-1 md:col-span-2">
-                                        <h3 contenteditable="true" class="text-white text-2xl font-bold mb-4">BrandName</h3>
-                                        <p contenteditable="true" class="max-w-sm">Making the world a better place through design and innovation.</p>
-                                    </div>
-                                    <div>
-                                        <h4 contenteditable="true" class="text-white font-bold mb-4">Links</h4>
-                                        <ul class="space-y-2">
-                                            <li contenteditable="true">Home</li>
-                                            <li contenteditable="true">About</li>
-                                            <li contenteditable="true">Services</li>
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <h4 contenteditable="true" class="text-white font-bold mb-4">Contact</h4>
-                                        <ul class="space-y-2">
-                                            <li contenteditable="true">hello@example.com</li>
-                                            <li contenteditable="true">+1 (555) 123-4567</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="text-center pt-8 border-t border-slate-800">
-                                    <p contenteditable="true">&copy; 2024 BrandName. All rights reserved.</p>
-                                </div>
-                            </section>`;
-                            break;
+                    // We need to re-bind events for the new elements
+                    const fragment = document.createDocumentFragment();
+                    while (tempDiv.firstChild) {
+                        fragment.appendChild(tempDiv.firstChild);
                     }
+                    canvasArea.appendChild(fragment);
+                } else {
+                     const existingSections = canvasArea.querySelectorAll('section');
+                     existingSections.forEach(s => s.remove());
+                     emptyState.style.display = 'flex';
+                }
+            }
 
-                    const wrapper = document.createElement('div');
-                    wrapper.innerHTML = html;
-                    document.getElementById('canvas-area').appendChild(wrapper.firstElementChild);
-                    
-                    // Scroll to new section
-                    setTimeout(() => {
-                         document.getElementById('canvas-area').lastElementChild.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
-                },
+            function triggerUpload(element, type = 'image') {
+                currentEditingImg = element;
+                const input = document.getElementById('media-upload');
+                input.setAttribute('accept', type === 'video' ? 'video/*' : 'image/*');
+                input.click();
+            }
 
-                // Section Controls
-                deleteSection: (btn) => {
-                    if(confirm("Delete this section?")) {
-                        const section = btn.closest('section');
-                        section.remove();
-                        if(document.getElementById('canvas-area').querySelectorAll('section').length === 0) {
-                             document.getElementById('empty-state').style.display = 'flex';
-                        }
-                    }
-                },
+            function execCmd(command, value = null) {
+                document.execCommand(command, false, value);
+                const sel = window.getSelection();
+                if(sel.rangeCount > 0) {
+                    const node = sel.anchorNode.parentElement;
+                    if(node.isContentEditable) node.focus();
+                }
+            }
 
-                moveUp: (btn) => {
-                    const section = btn.closest('section');
+            // --- Event Delegation for Canvas Interactions ---
+            canvasArea.addEventListener('click', (e) => {
+                const target = e.target;
+                
+                // Move Up
+                if(target.closest('.btn-move-up')) {
+                    const section = target.closest('section');
                     if (section.previousElementSibling && section.previousElementSibling.tagName === 'SECTION') {
                         section.parentNode.insertBefore(section, section.previousElementSibling);
                         section.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
-                },
+                    return;
+                }
 
-                moveDown: (btn) => {
-                    const section = btn.closest('section');
+                // Move Down
+                if(target.closest('.btn-move-down')) {
+                    const section = target.closest('section');
                     if (section.nextElementSibling) {
                         section.parentNode.insertBefore(section.nextElementSibling, section);
                         section.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
-                },
-
-                // Text Editing
-                execCmd: (command, value = null) => {
-                    document.execCommand(command, false, value);
-                    // Refocus to keep selection
-                    const sel = window.getSelection();
-                    if(sel.rangeCount > 0) {
-                        const node = sel.anchorNode.parentElement;
-                        if(node.isContentEditable) node.focus();
-                    }
-                },
-
-                // Media Upload
-                triggerUpload: (element, type = 'image') => {
-                    currentEditingImg = element;
-                    const input = document.getElementById('media-upload');
-                    input.setAttribute('accept', type === 'video' ? 'video/*' : 'image/*');
-                    input.click();
-                },
-
-                // Modal & Settings
-                loadTemplate: (type) => {
-                    console.log("Loading template:", type);
-                    const modal = document.getElementById('start-modal');
-                    const canvas = document.getElementById('canvas-area');
-                    const empty = document.getElementById('empty-state');
-                    
-                    modal.style.display = 'none';
-                    
-                    if(type !== 'blank') {
-                        empty.style.display = 'none';
-                        // Clear existing sections first (except empty state)
-                        const existingSections = canvas.querySelectorAll('section');
-                        existingSections.forEach(s => s.remove());
-
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = templates[type];
-                        while (tempDiv.firstChild) {
-                            canvas.appendChild(tempDiv.firstChild);
-                        }
-                    } else {
-                        // Ensure blank state
-                         const existingSections = canvas.querySelectorAll('section');
-                         existingSections.forEach(s => s.remove());
-                         empty.style.display = 'flex';
-                    }
-                },
-
-                clearCanvas: () => {
-                    if(confirm("Are you sure? This will delete everything.")) {
-                        const canvas = document.getElementById('canvas-area');
-                        const sections = canvas.querySelectorAll('section');
-                        sections.forEach(s => s.remove());
-                        document.getElementById('empty-state').style.display = 'flex';
-                    }
-                },
-
-                setView: (mode) => {
-                    const canvas = document.getElementById('canvas-area');
-                    if (mode === 'mobile') {
-                        canvas.classList.add('mobile-view');
-                    } else {
-                        canvas.classList.remove('mobile-view');
-                    }
-                },
-
-                openSeoModal: () => {
-                    document.getElementById('input-seo-title').value = document.getElementById('seo-title').value;
-                    document.getElementById('input-seo-desc').value = document.getElementById('seo-desc').value;
-                    document.getElementById('input-seo-keywords').value = document.getElementById('seo-keywords').value;
-                    document.getElementById('seo-modal').classList.remove('hidden');
-                },
-
-                closeSeoModal: () => {
-                    document.getElementById('seo-modal').classList.add('hidden');
-                },
-
-                saveSeo: () => {
-                    document.getElementById('seo-title').value = document.getElementById('input-seo-title').value;
-                    document.getElementById('seo-desc').value = document.getElementById('input-seo-desc').value;
-                    document.getElementById('seo-keywords').value = document.getElementById('input-seo-keywords').value;
-                    window.app.closeSeoModal();
-                },
-
-                exportWebsite: () => {
-                    const title = document.getElementById('seo-title').value;
-                    const desc = document.getElementById('seo-desc').value;
-                    const keywords = document.getElementById('seo-keywords').value;
-                    
-                    // Clone canvas to clean up UI elements
-                    const canvasClone = document.getElementById('canvas-area').cloneNode(true);
-                    
-                    // 1. Remove Editor Classes and Styles
-                    canvasClone.classList.remove('mobile-view', 'shadow-xl', 'pb-32');
-                    canvasClone.style.maxWidth = '100%'; 
-                    canvasClone.style.paddingBottom = '0';
-                    
-                    // 2. Remove Controls
-                    canvasClone.querySelectorAll('.section-controls').forEach(el => el.remove());
-                    canvasClone.querySelectorAll('#empty-state').forEach(el => el.remove());
-                    
-                    // 3. Clean Interaction Attributes (make it static)
-                    canvasClone.querySelectorAll('*').forEach(el => {
-                        el.removeAttribute('contenteditable');
-                        el.removeAttribute('onclick');
-                        el.removeAttribute('draggable');
-                        el.classList.remove('cursor-grab', 'active:cursor-grabbing', 'editable-section', 'group', 'hover:outline-dashed', 'hover:border-indigo-100', 'hover:border-transparent');
-                        el.style.outline = 'none';
-                        el.style.cursor = 'default';
-                        
-                        // Fix video placeholders
-                        if(el.classList.contains('group/vid')) {
-                             el.remove(); // Remove the "Click to upload" overlay from video
-                        }
-                    });
-
-                    // 4. Ensure Videos are Visible if src exists
-                    canvasClone.querySelectorAll('video').forEach(vid => {
-                        if(vid.src) vid.classList.remove('hidden');
-                        vid.controls = true;
-                    });
-
-                    const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title}</title>
-    <meta name="description" content="${desc}">
-    <meta name="keywords" content="${keywords}">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@400;700&family=Roboto+Mono&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .font-playfair { font-family: 'Playfair Display', serif; }
-    </style>
-</head>
-<body class="bg-white text-slate-800">
-    ${canvasClone.innerHTML}
-    
-    <footer class="bg-slate-900 text-white py-12 text-center border-t border-slate-800">
-        <p class="text-sm opacity-50">Built with <a href="https://ctrlswipe.com/" target="_blank" class="underline hover:text-white">Brsh by CTRL Swipe</a></p>
-    </footer>
-</body>
-</html>`;
-
-                    const blob = new Blob([htmlContent], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'index.html';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
+                    return;
                 }
-            };
 
-            // Attach to window
-            window.app = app;
+                // Delete
+                if(target.closest('.btn-delete')) {
+                    if(confirm("Delete this section?")) {
+                        const section = target.closest('section');
+                        section.remove();
+                        if(canvasArea.querySelectorAll('section').length === 0) {
+                             emptyState.style.display = 'flex';
+                        }
+                    }
+                    return;
+                }
 
-            // --- Event Listeners ---
+                // Trigger Upload (Image/Video)
+                if(target.closest('.img-upload-trigger') || target.closest('.vid-upload-trigger')) {
+                    const el = target.closest('.img-upload-trigger') || target.closest('.vid-upload-trigger');
+                    const type = el.classList.contains('vid-upload-trigger') ? 'video' : 'image';
+                    triggerUpload(el, type);
+                }
+            });
+
+            // --- Drag & Drop Handlers ---
+            const draggableItems = document.querySelectorAll('.draggable-item');
+            draggableItems.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    draggedType = e.target.dataset.type;
+                    e.dataTransfer.setData("text/plain", draggedType);
+                });
+            });
+
+            canvasArea.addEventListener('dragover', (e) => e.preventDefault());
+            canvasArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                emptyState.style.display = 'none';
+                
+                const controls = `
+                    <div class="absolute right-4 top-4 section-controls z-20 flex gap-2 bg-white shadow-lg rounded-lg p-1 border border-slate-100">
+                        <button class="btn-move-up w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600"><i class="fas fa-arrow-up"></i></button>
+                        <button class="btn-move-down w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600"><i class="fas fa-arrow-down"></i></button>
+                        <button class="btn-delete w-8 h-8 flex items-center justify-center rounded hover:bg-red-50 text-red-500 transition"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+
+                let html = '';
+                // Generate HTML based on draggedType (Same logic as before)
+                if(draggedType === 'hero') {
+                    html = `
+                    <section class="editable-section relative group hover:outline-dashed outline-indigo-300">
+                        ${controls}
+                        <div class="relative h-[500px] w-full overflow-hidden flex items-center justify-center bg-slate-900 text-center">
+                            <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?fit=crop&w=1600&q=80" class="absolute inset-0 w-full h-full object-cover opacity-60 cursor-pointer transition hover:scale-105 duration-700 pointer-events-none">
+                            <div class="absolute inset-0 img-upload-trigger cursor-pointer z-0"></div> 
+                            <div class="relative z-10 p-4 max-w-4xl pointer-events-auto">
+                                <h1 contenteditable="true" class="text-6xl font-extrabold text-white mb-6 drop-shadow-xl leading-tight">Your Headline Here</h1>
+                                <p contenteditable="true" class="text-2xl text-slate-200 drop-shadow-md font-light">Click to edit this text. Click background for image.</p>
+                                <div class="mt-8">
+                                    <button contenteditable="true" class="px-8 py-3 bg-white text-slate-900 rounded-full font-bold hover:bg-indigo-50 transition">Call to Action</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>`;
+                } else if (draggedType === 'text-block') {
+                    html = `
+                    <section class="editable-section relative group py-24 px-6 bg-white">
+                        ${controls}
+                        <div class="max-w-3xl mx-auto text-center">
+                            <h2 contenteditable="true" class="text-4xl font-bold mb-6 text-slate-800">Compelling Title</h2>
+                            <p contenteditable="true" class="text-xl text-slate-600 leading-relaxed font-light">This is a text block. You can use it to introduce your brand, tell a story, or explain your value proposition. Click anywhere to start typing.</p>
+                        </div>
+                    </section>`;
+                } else if (draggedType === 'two-col') {
+                    html = `
+                    <section class="editable-section relative group py-20 px-6 bg-slate-50">
+                        ${controls}
+                        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+                            <div class="relative group/img cursor-pointer img-upload-trigger">
+                                <div class="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-image text-white opacity-0 group-hover/img:opacity-100 text-3xl drop-shadow-lg"></i>
+                                </div>
+                                <img src="https://via.placeholder.com/800x600?text=Upload+Image" class="rounded-xl shadow-xl w-full pointer-events-none">
+                            </div>
+                            <div>
+                                <h3 contenteditable="true" class="text-3xl font-bold mb-4 text-slate-800">Feature Highlight</h3>
+                                <p contenteditable="true" class="text-lg text-slate-600 leading-relaxed mb-6">Describe a key feature or benefit of your product here. The split layout is perfect for showcasing visual elements alongside descriptive text.</p>
+                                <button contenteditable="true" class="text-indigo-600 font-bold hover:text-indigo-800 flex items-center gap-2">Learn more <i class="fas fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+                    </section>`;
+                } else if (draggedType === 'gallery') {
+                     html = `
+                    <section class="editable-section relative group py-20 px-6 bg-white">
+                        ${controls}
+                        <div class="max-w-7xl mx-auto">
+                            <h2 contenteditable="true" class="text-center text-3xl font-bold mb-12">Image Gallery</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="img-upload-trigger cursor-pointer hover:-translate-y-1 transition"><img src="https://via.placeholder.com/400x300/e2e8f0/94a3b8?text=Image+1" class="w-full h-64 object-cover rounded-xl shadow-md pointer-events-none"></div>
+                                <div class="img-upload-trigger cursor-pointer hover:-translate-y-1 transition"><img src="https://via.placeholder.com/400x300/e2e8f0/94a3b8?text=Image+2" class="w-full h-64 object-cover rounded-xl shadow-md pointer-events-none"></div>
+                                <div class="img-upload-trigger cursor-pointer hover:-translate-y-1 transition"><img src="https://via.placeholder.com/400x300/e2e8f0/94a3b8?text=Image+3" class="w-full h-64 object-cover rounded-xl shadow-md pointer-events-none"></div>
+                            </div>
+                        </div>
+                    </section>`;
+                } else if (draggedType === 'video') {
+                     html = `
+                    <section class="editable-section relative group py-20 px-6 bg-slate-900">
+                        ${controls}
+                        <div class="max-w-5xl mx-auto text-center">
+                                <h2 contenteditable="true" class="text-white text-3xl font-bold mb-8">Watch Our Story</h2>
+                                <div class="relative w-full aspect-video bg-slate-800 rounded-2xl flex items-center justify-center border border-slate-700 shadow-2xl overflow-hidden">
+                                <video controls class="w-full h-full hidden" src=""></video>
+                                <div class="text-center cursor-pointer p-10 hover:bg-slate-700/50 w-full h-full flex flex-col items-center justify-center transition group/vid vid-upload-trigger">
+                                    <div class="w-20 h-20 rounded-full bg-slate-700 group-hover/vid:bg-red-600 flex items-center justify-center transition mb-4">
+                                        <i class="fas fa-play text-white text-2xl pl-1"></i>
+                                    </div>
+                                    <span class="text-slate-400 group-hover/vid:text-white transition font-medium">Click to upload video (MP4)</span>
+                                </div>
+                                </div>
+                        </div>
+                    </section>`;
+                } else if (draggedType === 'footer') {
+                    html = `
+                    <section class="editable-section relative group py-12 px-6 bg-slate-950 text-slate-400 border-t border-slate-800">
+                        ${controls}
+                        <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
+                            <div class="col-span-1 md:col-span-2">
+                                <h3 contenteditable="true" class="text-white text-2xl font-bold mb-4">BrandName</h3>
+                                <p contenteditable="true" class="max-w-sm">Making the world a better place through design and innovation.</p>
+                            </div>
+                            <div>
+                                <h4 contenteditable="true" class="text-white font-bold mb-4">Links</h4>
+                                <ul class="space-y-2">
+                                    <li contenteditable="true">Home</li>
+                                    <li contenteditable="true">About</li>
+                                    <li contenteditable="true">Services</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 contenteditable="true" class="text-white font-bold mb-4">Contact</h4>
+                                <ul class="space-y-2">
+                                    <li contenteditable="true">hello@example.com</li>
+                                    <li contenteditable="true">+1 (555) 123-4567</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="text-center pt-8 border-t border-slate-800">
+                            <p contenteditable="true">&copy; 2024 BrandName. All rights reserved.</p>
+                        </div>
+                    </section>`;
+                }
+
+                if (html) {
+                    const wrapper = document.createElement('div');
+                    wrapper.innerHTML = html;
+                    canvasArea.appendChild(wrapper.firstElementChild);
+                    setTimeout(() => {
+                         canvasArea.lastElementChild.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                }
+            });
+
+            // --- Button Listeners (The Critical Fix) ---
+            document.getElementById('template-blank').addEventListener('click', () => loadTemplate('blank'));
+            document.getElementById('template-portfolio').addEventListener('click', () => loadTemplate('portfolio'));
+            document.getElementById('template-business').addEventListener('click', () => loadTemplate('business'));
             
-            // Text selection toolbar
+            document.getElementById('close-modal-btn').addEventListener('click', () => {
+                startModal.style.display = 'none';
+            });
+            
+            document.getElementById('btn-open-templates').addEventListener('click', () => {
+                startModal.style.display = 'flex';
+            });
+
+            document.getElementById('btn-clear').addEventListener('click', () => {
+                if(confirm("Are you sure? This will delete everything.")) {
+                    const sections = canvasArea.querySelectorAll('section');
+                    sections.forEach(s => s.remove());
+                    emptyState.style.display = 'flex';
+                }
+            });
+
+            document.getElementById('view-desktop').addEventListener('click', () => {
+                canvasArea.classList.remove('mobile-view');
+            });
+
+            document.getElementById('view-mobile').addEventListener('click', () => {
+                canvasArea.classList.add('mobile-view');
+            });
+
+            // --- SEO Modal Listeners ---
+            document.getElementById('btn-seo').addEventListener('click', () => {
+                document.getElementById('input-seo-title').value = document.getElementById('seo-title').value;
+                document.getElementById('input-seo-desc').value = document.getElementById('seo-desc').value;
+                document.getElementById('input-seo-keywords').value = document.getElementById('seo-keywords').value;
+                seoModal.classList.remove('hidden');
+            });
+
+            document.getElementById('btn-seo-cancel').addEventListener('click', () => {
+                seoModal.classList.add('hidden');
+            });
+
+            document.getElementById('btn-seo-save').addEventListener('click', () => {
+                document.getElementById('seo-title').value = document.getElementById('input-seo-title').value;
+                document.getElementById('seo-desc').value = document.getElementById('input-seo-desc').value;
+                document.getElementById('seo-keywords').value = document.getElementById('input-seo-keywords').value;
+                seoModal.classList.add('hidden');
+            });
+
+            // --- Toolbar Listeners ---
+            document.getElementById('font-family-selector').addEventListener('change', (e) => execCmd('fontName', e.target.value));
+            document.getElementById('color-picker').addEventListener('change', (e) => execCmd('foreColor', e.target.value));
+            
+            document.querySelectorAll('.toolbar-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // Prevent button click from taking focus away from text
+                    e.preventDefault();
+                    const cmd = e.currentTarget.dataset.cmd;
+                    execCmd(cmd);
+                });
+            });
+
+            // Text Selection Tracking for Toolbar
             document.addEventListener('selectionchange', () => {
                 const selection = window.getSelection();
-                const toolbar = document.getElementById('editor-toolbar');
-                
                 if (selection.rangeCount > 0 && !selection.isCollapsed) {
-                    // Check if selection is inside canvas
                     let node = selection.anchorNode;
-                    while(node && node.id !== 'canvas-area') {
-                        node = node.parentNode;
+                    // Traverse up to find if we are in canvas
+                    let insideCanvas = false;
+                    let curr = node;
+                    while(curr) {
+                        if (curr.id === 'canvas-area') {
+                            insideCanvas = true;
+                            break;
+                        }
+                        curr = curr.parentNode;
                     }
                     
-                    if(node) { // Is inside canvas
+                    if(insideCanvas) {
                         const range = selection.getRangeAt(0);
                         const rect = range.getBoundingClientRect();
-                        
-                        toolbar.style.display = 'flex';
-                        toolbar.style.top = `${rect.top - 60 + window.scrollY}px`;
-                        toolbar.style.left = `${Math.max(10, rect.left)}px`; // Prevent going offscreen left
+                        editorToolbar.style.display = 'flex';
+                        editorToolbar.style.top = `${rect.top - 60 + window.scrollY}px`;
+                        editorToolbar.style.left = `${Math.max(10, rect.left)}px`;
                     } else {
-                        toolbar.style.display = 'none';
+                        editorToolbar.style.display = 'none';
                     }
                 }
             });
 
             document.addEventListener('mousedown', (e) => {
-                const toolbar = document.getElementById('editor-toolbar');
-                if (toolbar.style.display === 'flex' && !toolbar.contains(e.target) && !e.target.closest('[contenteditable]')) {
-                     toolbar.style.display = 'none';
+                 if (editorToolbar.style.display === 'flex' && !editorToolbar.contains(e.target) && !e.target.closest('[contenteditable]')) {
+                     editorToolbar.style.display = 'none';
                 }
             });
 
-            // Media Upload Handler
+            // --- Media Upload Logic ---
             const mediaInput = document.getElementById('media-upload');
-            if(mediaInput) {
-                mediaInput.addEventListener('change', function(e) {
-                    if (e.target.files && e.target.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            if (!currentEditingImg) return;
-                            
-                            // Check if it's a video placeholder div
-                            if(currentEditingImg.classList.contains('group/vid') || currentEditingImg.closest('.group\\/vid')) {
-                                const container = currentEditingImg.closest('div.relative'); // The container
-                                const videoEl = container.querySelector('video');
-                                videoEl.src = e.target.result;
-                                videoEl.classList.remove('hidden');
-                                currentEditingImg.classList.add('hidden'); // Hide placeholder
-                            } else if (currentEditingImg.tagName === 'IMG') {
-                                // Standard Image
-                                currentEditingImg.src = e.target.result;
-                            } else if (currentEditingImg.querySelector('img')) {
-                                // Div wrapper with img
-                                currentEditingImg.querySelector('img').src = e.target.result;
-                            }
+            mediaInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (!currentEditingImg) return;
+                        
+                        if(currentEditingImg.classList.contains('vid-upload-trigger')) {
+                            const container = currentEditingImg.closest('div.relative');
+                            const videoEl = container.querySelector('video');
+                            videoEl.src = e.target.result;
+                            videoEl.classList.remove('hidden');
+                            currentEditingImg.classList.add('hidden');
+                        } else if (currentEditingImg.tagName === 'IMG') {
+                            currentEditingImg.src = e.target.result;
+                        } else if (currentEditingImg.querySelector('img')) {
+                            currentEditingImg.querySelector('img').src = e.target.result;
                         }
-                        reader.readAsDataURL(e.target.files[0]);
                     }
-                    this.value = '';
-                });
-            }
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+                this.value = '';
+            });
 
-        })();
+            // --- Export Function ---
+            document.getElementById('btn-export').addEventListener('click', () => {
+                const title = document.getElementById('seo-title').value;
+                const desc = document.getElementById('seo-desc').value;
+                const keywords = document.getElementById('seo-keywords').value;
+                
+                const canvasClone = canvasArea.cloneNode(true);
+                
+                // Cleanup for Export
+                canvasClone.classList.remove('mobile-view', 'shadow-xl', 'pb-32');
+                canvasClone.style.maxWidth = '100%'; 
+                canvasClone.style.paddingBottom = '0';
+                
+                // Remove internal controls
+                canvasClone.querySelectorAll('.section-controls').forEach(el => el.remove());
+                canvasClone.querySelectorAll('#empty-state').forEach(el => el.remove());
+                
+                // Clean Attributes
+                canvasClone.querySelectorAll('*').forEach(el => {
+                    el.removeAttribute('contenteditable');
+                    el.classList.remove('cursor-grab', 'active:cursor-grabbing', 'editable-section', 'group', 'hover:outline-dashed', 'hover:border-indigo-100', 'hover:border-transparent', 'img-upload-trigger', 'vid-upload-trigger', 'pointer-events-none');
+                    el.style.outline = 'none';
+                    el.style.cursor = 'default';
+                    
+                    if(el.classList.contains('vid-upload-trigger')) {
+                         el.remove();
+                    }
+                });
+
+                canvasClone.querySelectorAll('video').forEach(vid => {
+                    if(vid.src) vid.classList.remove('hidden');
+                    vid.controls = true;
+                });
+
+                const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+<meta name="description" content="${desc}">
+<meta name="keywords" content="${keywords}">
+<script src="https://cdn.tailwindcss.com"><\/script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@400;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+<style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-playfair { font-family: 'Playfair Display', serif; }
+</style>
+</head>
+<body class="bg-white text-slate-800">
+${canvasClone.innerHTML}
+
+<footer class="bg-slate-900 text-white py-12 text-center border-t border-slate-800">
+    <p class="text-sm opacity-50">Built with <a href="https://ctrlswipe.com/" target="_blank" class="underline hover:text-white">Brsh by CTRL Swipe</a></p>
+</footer>
+</body>
+</html>`;
+
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'index.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        });
     </script>
 </body>
 </html>
